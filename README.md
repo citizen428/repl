@@ -5,6 +5,17 @@ line editing capabilities (including history and completions) provided by [liner
 
 ## Installation
 
+### Homebrew
+
+```sh
+$ brew tap citizen428/homebrew-tap
+$ brew install repl-go
+```
+
+### Release
+
+Head over to the [release page](https://github.com/citizen428/repl/releases) and download the archive for your operating system/architecture.
+
 ### Manual
 
 ```sh
