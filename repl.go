@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -8,18 +9,23 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
+	"strings"
 
 	"github.com/peterh/liner"
 )
 
 var (
+	cmd      string
 	debug    bool
+	compDir  string
 	histDir  string
 	histFile string
 )
 
 func init() {
 	flag.BoolVar(&debug, "debug", false, "Enable debug output")
+	compDirDefault := os.Getenv("HOME") + "/.repl"
+	flag.StringVar(&compDir, "compdir", compDirDefault, "Directory for completion files")
 	flag.StringVar(&histDir, "histdir", os.Getenv("HOME"), "Directory for history file")
 	flag.Parse()
 
@@ -34,13 +40,14 @@ func init() {
 }
 
 func main() {
+	cmd = flag.Arg(0)
+
 	line := liner.NewLiner()
 	defer line.Close()
+
 	line.SetCtrlCAborts(true)
-
+	loadCompletions(line)
 	loadHistory(line)
-
-	cmd := flag.Arg(0)
 
 	for {
 		input, err := line.Prompt(cmd + ">> ")
@@ -63,6 +70,26 @@ func main() {
 			fmt.Println(string(cmdOut))
 			line.AppendHistory(input)
 		}
+	}
+}
+
+func loadCompletions(line *liner.State) {
+	compFile := path.Join(compDir, cmd)
+	if f, err := os.Open(compFile); err == nil {
+		defer f.Close()
+
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(f)
+		comps := buf.String()
+
+		line.SetCompleter(func(line string) (c []string) {
+			for _, comp := range strings.Split(comps, " ") {
+				if strings.HasPrefix(comp, strings.ToLower(line)) {
+					c = append(c, comp)
+				}
+			}
+			return
+		})
 	}
 }
 

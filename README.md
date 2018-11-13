@@ -1,6 +1,7 @@
 # repl —- Add more read-eval-print-love in your life
 
-`repl` is an interactive program which wraps non-interactive programs. Inspired by [Chris Wanstrath](https://github.com/defunkt)'s original [Ruby version](https://github.com/defunkt/repl). It comes with line editing capabilities (including history) provided by [liner](https://github.com/peterh/liner).
+`repl` is an interactive program which wraps non-interactive programs. Inspired by [Chris Wanstrath](https://github.com/defunkt)'s original [Ruby version](https://github.com/defunkt/repl). It comes with
+line editing capabilities (including history and completions) provided by [liner](https://github.com/peterh/liner).
 
 ## Installation
 
@@ -59,11 +60,25 @@ Usage:
   repl cmd [options]
 
 Options:
+  -compdir string
+    	Directory for completion files (default "/Users/<username>/.repl")
   -debug
     	Enable debug output
   -histdir string
     	Directory for history file (default "/Users/<username>")
 ```
+
+## Completions
+
+Since [liner](https://github.com/peterh/liner) supports completions, `repl` does too. Any file in
+the directory specified via the `-compdir` option matching the name of the command you start `repl`
+with will be used for completions.
+
+For instance, a file named `~/.repl/redis-cli` containing "get set info" will cause "get", "set", and
+"info" to be tab completeable at the `repl redis-cli` prompt.
+
+This is compatible with the original [repl-completion](http://github.com/defunkt/repl-completion)
+project, which contains a few common, pre-rolled completion files.
 
 ## Contributing
 
@@ -71,7 +86,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/citize
 
 ## TODO
 
-- [ ] Support completions
+- [x] Support completions
 - [ ] Add tests
 - [ ] Release
 
