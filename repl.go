@@ -71,8 +71,7 @@ func parseFlags() {
 }
 
 func printUsage() {
-	prog := path.Base(cmd)
-	fmt.Fprintf(flag.CommandLine.Output(), "Usage:\n  %s cmd [options]\n\nOptions:\n", prog)
+	fmt.Fprintln(flag.CommandLine.Output(), "Usage:\n  repl cmd [options]\n\nOptions:")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
