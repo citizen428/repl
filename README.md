@@ -19,7 +19,9 @@ Head over to the [release page](https://github.com/citizen428/repl/releases) and
 ### Manual
 
 ```sh
-$ go install github.com/citizen428/repl
+git clone https://github.com/citizen428/repl.git
+cd repl
+go build
 ```
 
 ## Examples
@@ -97,9 +99,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/citize
 
 ## TODO
 
-- [x] Support completions
 - [ ] Add tests
-- [ ] Release
 
 ## License
 
