@@ -17,8 +17,8 @@ import (
 var (
 	cmd      string
 	debug    bool
-	compDir  string = os.Getenv("HOME") + "/.repl"
-	histDir  string = os.Getenv("HOME")
+	compDir  string
+	histDir  string
 	histFile string
 )
 
@@ -60,9 +60,10 @@ func Run() {
 }
 
 func parseFlags() {
+	homeDir := os.Getenv(("HOME"))
 	flag.BoolVar(&debug, "debug", false, "Enable debug output")
-	flag.StringVar(&compDir, "compdir", compDir, "Directory for completion files")
-	flag.StringVar(&histDir, "histdir", histDir, "Directory for history file")
+	flag.StringVar(&compDir, "compdir", homeDir+"/.repl", "Directory for completion files")
+	flag.StringVar(&histDir, "histdir", homeDir, "Directory for history file")
 	flag.Parse()
 
 	cmd = flag.Arg(0)

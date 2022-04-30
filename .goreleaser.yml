@@ -1,30 +1,37 @@
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+before:
+  hooks:
+    - go mod tidy
 builds:
   - main: ./cmd/repl/
-    env:
-      - CGO_ENABLED=0
+    ldflags:
+      - "-s -w"
     goos:
       - darwin
+      - freebsd
       - linux
+      - openbsd
       - windows
-    goarch:
-      - 386
-      - amd64
-      - arm
-      - arm64
-    goarm:
-      - 6
-      - 7
-    ignore:
-      - goos: darwin
-        goarch: 386
-      - goos: darwin
-        goarch: arm
+
+archives:
+  - format: tar.gz
+    format_overrides:
       - goos: windows
-        goarch: 386
-      - goos: windows
-        goarch: arm
+        format: zip
+    replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    wrap_in_directory: true
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
 changelog:
-  sort: desc
+  sort: asc
 brews:
   - name: repl-go
     tap:
