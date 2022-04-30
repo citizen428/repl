@@ -1,4 +1,4 @@
-package main
+package repl
 
 import (
 	"bytes"
@@ -17,42 +17,28 @@ import (
 var (
 	cmd      string
 	debug    bool
-	compDir  string
-	histDir  string
+	compDir  string = os.Getenv("HOME") + "/.repl"
+	histDir  string = os.Getenv("HOME")
 	histFile string
 )
 
-func init() {
-	flag.BoolVar(&debug, "debug", false, "Enable debug output")
-	compDirDefault := os.Getenv("HOME") + "/.repl"
-	flag.StringVar(&compDir, "compdir", compDirDefault, "Directory for completion files")
-	flag.StringVar(&histDir, "histdir", os.Getenv("HOME"), "Directory for history file")
-	flag.Parse()
-
+func Run() {
+	parseFlags()
 	if flag.NArg() == 0 {
-		prog := path.Base(os.Args[0])
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage:\n  %s cmd [options]\n\nOptions:\n", prog)
-		flag.PrintDefaults()
-		os.Exit(0)
+		printUsage()
 	}
 
-	histFile = path.Join(histDir, ".repl_history")
-}
+	readLine := liner.NewLiner()
+	defer readLine.Close()
 
-func main() {
-	cmd = flag.Arg(0)
-
-	line := liner.NewLiner()
-	defer line.Close()
-
-	line.SetCtrlCAborts(true)
-	loadCompletions(line)
-	loadHistory(line)
+	readLine.SetCtrlCAborts(true)
+	loadCompletions(readLine)
+	loadHistory(readLine)
 
 	for {
-		input, err := line.Prompt(cmd + ">> ")
+		input, err := readLine.Prompt(cmd + ">> ")
 		if err == io.EOF {
-			saveHistory(line)
+			saveHistory(readLine)
 			os.Exit(0)
 		}
 
@@ -68,9 +54,26 @@ func main() {
 		args := regexp.MustCompile(`\s+`).Split(input, -1)
 		if cmdOut, err := exec.Command(cmd, args...).Output(); err == nil {
 			fmt.Println(string(cmdOut))
-			line.AppendHistory(input)
+			readLine.AppendHistory(input)
 		}
 	}
+}
+
+func parseFlags() {
+	flag.BoolVar(&debug, "debug", false, "Enable debug output")
+	flag.StringVar(&compDir, "compdir", compDir, "Directory for completion files")
+	flag.StringVar(&histDir, "histdir", histDir, "Directory for history file")
+	flag.Parse()
+
+	cmd = flag.Arg(0)
+	histFile = path.Join(histDir, ".repl_history")
+}
+
+func printUsage() {
+	prog := path.Base(cmd)
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage:\n  %s cmd [options]\n\nOptions:\n", prog)
+	flag.PrintDefaults()
+	os.Exit(0)
 }
 
 func loadCompletions(line *liner.State) {
